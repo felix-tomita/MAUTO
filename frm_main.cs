@@ -385,7 +385,7 @@ namespace MAUTO
             try
             {
                 // ログファイル取得
-                strTaskLog = this.pTaskStauts[strTaskID].task_exe.Replace("bat","log");
+                strTaskLog = this.pTaskStauts[strTaskID].task_exe + ".log";
                 blRes = File.Exists(strTaskLog);
 
                 if (blRes = File.Exists(strTaskLog) == true)
