@@ -67,78 +67,77 @@ namespace MAUTO
                 // 実行中タスク名取得
                 strExecTaskSeqNo = fnc_GetExecTaskSeqNo(STR_STS_EXECUTING);
 
-                // 実行中タスクなければ、順番通り次のタスクを実行
-                if (strExecTaskSeqNo == "")
+                // タスクステータス状況確認
+                strTaskExecTimeStamp = fnc_GetTaskEndStatus(strExecTaskSeqNo);
+                // タスク終了されたら処理中止
+                if (strTaskExecTimeStamp != "")
                 {
-                    // 最後に実行したタスクSeqNo取得
-                    strExecTaskSeqNo = fnc_GetExecTaskSeqNo(STR_STS_DONE);
-               
-                    // 次の実行対象タスクファイル取得
-                    strExecTaskSeqNo = fnc_GetNextTaskSeqNo(strExecTaskSeqNo);
-                    if (strExecTaskSeqNo == "END")
-                    {
-                        // 翌日の準備タスクのステータスを更新
-                        strTaskExecTimeStamp = DateTime.Now.AddDays(1).ToString("yyyyMMdd");
-                        if (fnc_UpdateNextDayTaskStatus(strTaskExecTimeStamp) == true)
-                        {
-                            strMsg = "準備完了 [<TASK_DAY>], 開始/終了時刻 [<DATE_TIME>]";
-                            strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
-                            strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-                            CommonLogger.WriteLine(strMsg);
-                        }
-                    }
-                    else if (strExecTaskSeqNo == "NON-START")
-                    {
-                        // 前日の準備タスクの未完了ステータスを確認
-                        strTaskExecTimeStamp = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
-                        strMsg = "準備未完 [<TASK_DAY>], 前日タスク未完 [<DATE_TIME>]";
-                        strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
-                        strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-                        CommonLogger.WriteLine(strMsg);
-                    }
-                    else
-                    {
-                        strExecFile = this.pTaskStauts[strExecTaskSeqNo].task_exe;
-                        // タスクファイルを実行
-                        if (fnc_ExecBatProcess(strExecFile) == true)
-                        {
-                            // タスクステータス更新
-                            strTaskExecTimeStamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-                            if (fnc_UpdateTaskStatus(strExecTaskSeqNo, STR_STS_EXECUTING, strTaskExecTimeStamp) == true)
-                            {
-                                // タスクステータス再取得
-                                fnc_GetTaskList();
+                    fnc_UpdateTaskStatus(strExecTaskSeqNo, STR_STS_DONE, strTaskExecTimeStamp);
 
-                                strMsg = "タスク実行 [<TASK_SEQ>], 開始時刻 [<DATE_TIME>]";
-                                strMsg = strMsg.Replace("<TASK_SEQ>", "SeqNo:(" + strExecTaskSeqNo + ")");
-                                strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-                                CommonLogger.WriteLine(strMsg);
-                            }
-                        }
-                    }                   
+                    strMsg = "タスク終了 [<TASK_SEQ>], 終了時刻 [<DATE_TIME>]";
+                    strMsg = strMsg.Replace("<TASK_SEQ>", "SeqNo:(" + strExecTaskSeqNo + ")");
+                    strMsg = strMsg.Replace("<DATE_TIME>", strTaskExecTimeStamp);
+
+                    CommonLogger.WriteLine(strMsg);
                 }
-                else            
+                else
                 {
-                    // タスクステータス状況確認
-                    strTaskExecTimeStamp = fnc_GetTaskEndStatus(strExecTaskSeqNo);
-                    if (strTaskExecTimeStamp != "")
-                    {
-                        fnc_UpdateTaskStatus(strExecTaskSeqNo, STR_STS_DONE, strTaskExecTimeStamp);
-
-                        strMsg = "タスク終了 [<TASK_SEQ>], 終了時刻 [<DATE_TIME>]";
-                        strMsg = strMsg.Replace("<TASK_SEQ>", "SeqNo:(" + strExecTaskSeqNo + ")");
-                        strMsg = strMsg.Replace("<DATE_TIME>", strTaskExecTimeStamp);
-
-                        CommonLogger.WriteLine(strMsg);
-                    }
-                    else
+                    if (strExecTaskSeqNo != "")
                     {
                         strMsg = "タスク実行 [<TASK_SEQ>], タスク実行中";
                         strMsg = strMsg.Replace("<TASK_SEQ>", "SeqNo:(" + strExecTaskSeqNo + ")");
                         CommonLogger.WriteLine(strMsg);
                     }
-                }
+                    else　// 実行中タスクなければ、順番通り次のタスクを実行
+                    {
+                        // 最後に実行したタスクSeqNo取得
+                        strExecTaskSeqNo = fnc_GetExecTaskSeqNo(STR_STS_DONE);
 
+                        // 次の実行対象タスクファイル取得
+                        strExecTaskSeqNo = fnc_GetNextTaskSeqNo(strExecTaskSeqNo);
+                        if (strExecTaskSeqNo == "END")
+                        {
+                            // 翌日の準備タスクのステータスを更新
+                            strTaskExecTimeStamp = DateTime.Now.AddDays(1).ToString("yyyyMMdd");
+                            if (fnc_UpdateNextDayTaskStatus(strTaskExecTimeStamp) == true)
+                            {
+                                strMsg = "準備完了 [<TASK_DAY>], 開始/終了時刻 [<DATE_TIME>]";
+                                strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
+                                strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                                CommonLogger.WriteLine(strMsg);
+                            }
+                        }
+                        else if (strExecTaskSeqNo == "NON-START")
+                        {
+                            // 前日の準備タスクの未完了ステータスを確認
+                            strTaskExecTimeStamp = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+                            strMsg = "準備未完 [<TASK_DAY>], 前日タスク未完 [<DATE_TIME>]";
+                            strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
+                            strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                            CommonLogger.WriteLine(strMsg);
+                        }
+                        else
+                        {
+                            strExecFile = this.pTaskStauts[strExecTaskSeqNo].task_exe;
+                            // タスクファイルを実行
+                            if (fnc_ExecBatProcess(strExecFile) == true)
+                            {
+                                // タスクステータス更新
+                                strTaskExecTimeStamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                                if (fnc_UpdateTaskStatus(strExecTaskSeqNo, STR_STS_EXECUTING, strTaskExecTimeStamp) == true)
+                                {
+                                    // タスクステータス再取得
+                                    fnc_GetTaskList();
+
+                                    strMsg = "タスク実行 [<TASK_SEQ>], 開始時刻 [<DATE_TIME>]";
+                                    strMsg = strMsg.Replace("<TASK_SEQ>", "SeqNo:(" + strExecTaskSeqNo + ")");
+                                    strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                                    CommonLogger.WriteLine(strMsg);
+                                }
+                            }
+                        }
+                    }
+                }              
             }
             catch(Exception ex)
             {
@@ -151,7 +150,6 @@ namespace MAUTO
                 // 処理終了
                 Application.Exit();
             }
-
         }
 
         private void frm_main_FormClosing(object sender, FormClosingEventArgs e)
