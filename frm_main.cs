@@ -90,7 +90,7 @@ namespace MAUTO
                     else if (strExecTaskSeqNo == "NON-START")
                     {
                         // 前日の準備タスクの未完了ステータスを確認
-                        strTaskExecTimeStamp = DateTime.Now.AddDays(-11).ToString("yyyyMMdd");
+                        strTaskExecTimeStamp = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
                         strMsg = "準備未完 [<TASK_DAY>], 前日タスク未完 [<DATE_TIME>]";
                         strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
                         strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
