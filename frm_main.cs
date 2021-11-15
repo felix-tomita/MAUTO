@@ -75,8 +75,29 @@ namespace MAUTO
                
                     // 次の実行対象タスクファイル取得
                     strExecTaskSeqNo = fnc_GetNextTaskSeqNo(strExecTaskSeqNo);
-                    if (strExecTaskSeqNo != "END")
+                    if (strExecTaskSeqNo == "END")
                     {
+                        // 翌日の準備タスクのステータスを更新
+                        strTaskExecTimeStamp = DateTime.Now.AddDays(1).ToString("yyyyMMdd");
+                        if (fnc_UpdateNextDayTaskStatus(strTaskExecTimeStamp) == true)
+                        {
+                            strMsg = "準備完了 [<TASK_DAY>], 開始/終了時刻 [<DATE_TIME>]";
+                            strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
+                            strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                            CommonLogger.WriteLine(strMsg);
+                        }
+                    }
+                    else if (strExecTaskSeqNo == "NON-START")
+                    {
+                        // 前日の準備タスクの未完了ステータスを確認
+                        strTaskExecTimeStamp = DateTime.Now.AddDays(-11).ToString("yyyyMMdd");
+                        strMsg = "準備未完 [<TASK_DAY>], 前日タスク未完 [<DATE_TIME>]";
+                        strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
+                        strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                        CommonLogger.WriteLine(strMsg);
+                    }
+                    else
+                            {
                         strExecFile = this.pTaskStauts[strExecTaskSeqNo].task_exe;
                         // タスクファイルを実行
                         if (fnc_ExecBatProcess(strExecFile) == true)
@@ -94,19 +115,7 @@ namespace MAUTO
                                 CommonLogger.WriteLine(strMsg);
                             }
                         }
-                    }
-                    else
-                    {
-                        // 翌日の準備タスクのステータスを更新
-                        strTaskExecTimeStamp = DateTime.Now.AddDays(1).ToString("yyyyMMdd");
-                        if (fnc_UpdateNextDayTaskStatus(strTaskExecTimeStamp) == true)
-                        {
-                            strMsg = "準備完了 [<TASK_DAY>], 開始/終了時刻 [<DATE_TIME>]";
-                            strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
-                            strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-                            CommonLogger.WriteLine(strMsg);
-                        }
-                    }
+                    }                   
                 }
                 else            
                 {
@@ -213,16 +222,23 @@ namespace MAUTO
             string strRes;
             string strNextTaskSeqNo;
 
-            // HaspMapにNextタスクが存在しているかどうかをチェック
-            strNextTaskSeqNo = (int.Parse(strTaskSqeNo) + 1).ToString("000");
-
-            if (this.pTaskStauts.ContainsKey(strNextTaskSeqNo) == true)
+            if (strTaskSqeNo == "")
             {
-                strRes = strNextTaskSeqNo;
+                strRes = "NON-START";
             }
             else
-            {
-                strRes = "END";
+            { 
+                // HaspMapにNextタスクが存在しているかどうかをチェック
+                strNextTaskSeqNo = (int.Parse(strTaskSqeNo) + 1).ToString("000");
+
+                if (this.pTaskStauts.ContainsKey(strNextTaskSeqNo) == true)
+                {
+                    strRes = strNextTaskSeqNo;
+                }
+                else
+                {
+                    strRes = "END";
+                }
             }
             return strRes;
         }
