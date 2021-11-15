@@ -97,7 +97,7 @@ namespace MAUTO
                         CommonLogger.WriteLine(strMsg);
                     }
                     else
-                            {
+                    {
                         strExecFile = this.pTaskStauts[strExecTaskSeqNo].task_exe;
                         // タスクファイルを実行
                         if (fnc_ExecBatProcess(strExecFile) == true)
@@ -376,21 +376,40 @@ namespace MAUTO
         // endファイルの更新日付
         private string fnc_GetTaskEndStatus(string strTaskID)
         {
-            string strTaskEnd;
+            string strTaskLog;
             string strEndTime;
             bool blRes;
+            StreamReader sReader;
+            string strTemp;
 
             strEndTime = "";
             blRes = false;
             try
             {
-                strTaskEnd = this.pTaskStauts[strTaskID].task_exe.Replace("bat","end");
-                blRes = File.Exists(strTaskEnd);
+                // ログファイル取得
+                strTaskLog = this.pTaskStauts[strTaskID].task_exe.Replace("bat","log");
+                blRes = File.Exists(strTaskLog);
 
-                if (blRes == true )
+                if (blRes = File.Exists(strTaskLog) == true)
                 {
-                    strEndTime = File.GetLastWriteTime(strTaskEnd).ToString("yyyy/MM/dd HH:mm:ss");
+                    // ログファイル読み込み
+                    sReader = new StreamReader(strTaskLog);
+
+                    //一行読み込んで表示する
+                    while (sReader.Peek() > -1)
+                    {
+                        strTemp = sReader.ReadLine().ToString().Trim();
+
+                        if (strTemp.Contains("END") == true)
+                        {
+                            strEndTime = File.GetLastWriteTime(strTaskLog).ToString("yyyy/MM/dd HH:mm:ss");
+                            break;
+                        }
+                    }
+                    sReader.Close();                    
                 }
+
+                return strEndTime;
             }
             catch (Exception ex)
             {
