@@ -283,8 +283,8 @@ namespace MAUTO
                 startInfo.Arguments += strBatPath + " ";
                 // ●バッチファイルを別プロセスとして起動
                 var proc = Process.Start(startInfo);
-                // ●上記バッチ処理が終了するまで待ちます。
-                proc.WaitForExit();
+                //// ●上記バッチ処理が終了するまで待ちます。
+                //proc.WaitForExit();
 
                 blRes = true;
             }
