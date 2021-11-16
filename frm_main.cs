@@ -101,7 +101,8 @@ namespace MAUTO
                             strTaskExecTimeStamp = DateTime.Now.AddDays(1).ToString("yyyyMMdd");
                             if (fnc_UpdateNextDayTaskStatus(strTaskExecTimeStamp) == true)
                             {
-                                strMsg = "準備完了 [<TASK_DAY>], 開始/終了時刻 [<DATE_TIME>]";
+                                //strMsg = "準備完了 [<TASK_DAY>], 開始/終了時刻 [<DATE_TIME>]";
+                                strMsg = "準備完了 [<TASK_DAY>], 準備 開始時刻 [<DATE_TIME>]";
                                 strMsg = strMsg.Replace("<TASK_DAY>", strTaskExecTimeStamp);
                                 strMsg = strMsg.Replace("<DATE_TIME>", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
                                 CommonLogger.WriteLine(strMsg);
@@ -186,6 +187,7 @@ namespace MAUTO
                 strSQL = strSQL + " AND task_day = '" + DateTime.Now.ToString("yyyyMMdd") + "' ";
                 strSQL = strSQL + " ORDER BY task_day, task_id";
                 oleCmd.CommandText = strSQL;
+                CommonLogger.WriteLine("SELECT SQL：" + strSQL);
 
                 this.pTaskStauts = new Dictionary<string, typ_task_status>();
                 oleReader = oleCmd.ExecuteReader();
@@ -351,9 +353,9 @@ namespace MAUTO
 
                 strSQL = "";
                 strSQL = strSQL + "UPDATE task_list SET ";
-                strSQL = strSQL + " task_status ='" + STR_STS_DONE + "' ";
+                strSQL = strSQL + " task_status ='" + STR_STS_EXECUTING + "' ";
                 strSQL = strSQL + " , task_start ='" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "' ";
-                strSQL = strSQL + " , task_end ='" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "' ";
+                //strSQL = strSQL + " , task_end ='" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "' ";
                 strSQL = strSQL + " WHERE 1=1 ";
                 strSQL = strSQL + "  AND task_day ='" + strNextTaskDay + "'";
                 strSQL = strSQL + "  AND task_id ='000'";
