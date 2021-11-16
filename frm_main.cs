@@ -187,7 +187,7 @@ namespace MAUTO
                 strSQL = strSQL + " AND task_day = '" + DateTime.Now.ToString("yyyyMMdd") + "' ";
                 strSQL = strSQL + " ORDER BY task_day, task_id";
                 oleCmd.CommandText = strSQL;
-                CommonLogger.WriteLine("SELECT SQL：" + strSQL);
+                //CommonLogger.WriteLine("SELECT SQL：" + strSQL);
 
                 this.pTaskStauts = new Dictionary<string, typ_task_status>();
                 oleReader = oleCmd.ExecuteReader();
